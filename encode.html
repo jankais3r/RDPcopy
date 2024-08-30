@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>RDPCopy Encode</title>
+		<style>
+		body {
+			background: #F0F0F0;
+			font-family: sans-serif;
+		}
+
+		h2 {
+			margin-top: 35px;
+			margin-left: 55px;
+		}
+
+		#drop-area {
+			margin-top: 35px;
+			margin-left: 50px;
+			font-family: monospace;
+			width: 500px;
+			height: 250px;
+			background-color: rgba(0, 0, 0, 0.07);
+			border-radius: 6px 6px 6px 6px;
+			border-style: dashed;
+			color: #555555;
+			font-size: 1em;
+			line-height: 1.4em;
+			padding: 5px 8px;
+			transition: background-color 0.2s ease 0s;
+		}
+
+		.highlight {
+			background-color: #FFFFFF !important;
+		}
+
+		#drop-area:hover {
+			background-color: #FFFFFF;
+		}
+		
+		@keyframes glow {
+			0% {
+				box-shadow: 0 0 0px 0px #0075e0ff;
+			}
+			100% {
+				box-shadow: 0 0 30px 15px #0075e000;
+			}
+		}
+		</style>
+	</head>
+	<body>
+		<h2>RDPCopy Encode</h2>
+		<div id="drop-area">Drop yo file...</div>
+		<script>
+			var dropArea = document.getElementById('drop-area');
+
+			['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+				dropArea.addEventListener(eventName, preventDefaults, false);
+				document.body.addEventListener(eventName, preventDefaults, false);
+			});
+
+			['dragenter', 'dragover'].forEach(eventName => {
+				dropArea.addEventListener(eventName, highlight, false);
+			});
+
+			['dragleave', 'drop'].forEach(eventName => {
+				dropArea.addEventListener(eventName, unhighlight, false);
+			});
+
+			dropArea.addEventListener('drop', handleDrop, false);
+
+			function preventDefaults (e) {
+				e.preventDefault();
+				e.stopPropagation();
+			}
+
+			function highlight(e) {
+				dropArea.classList.add('highlight');
+			}
+
+			function unhighlight(e) {
+				dropArea.classList.remove('highlight');
+			}
+
+			function handleDrop(e) {
+				var dt = e.dataTransfer;
+				var files = dt.files;
+				handleFiles(files);
+			}
+
+
+			function handleFiles(files) {
+				files = [...files];
+				encodeFile(files[0]);
+			}
+
+			function encodeFile(file) {
+				var reader = new FileReader();
+				reader.readAsDataURL(file);
+				var filename = file.name;
+				//console.log(filename);
+				reader.onloadend = function() {
+					var url = reader.result;
+					//console.log(url);
+					navigator.clipboard.writeText(url.substring(url.indexOf('base64,') + 7) + '\n' + filename);
+					dropArea.style.animation = 'glow 0.75s ease forwards';
+					setTimeout(() => {
+						dropArea.style.animation = '';
+					}, 1000);
+				}
+			}
+		</script>
+	</body>
+</html>

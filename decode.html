@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>RDPCopy Decode</title>
+		<style>
+		body {
+			background: #F0F0F0;
+			font-family: sans-serif;
+		}
+
+		h2 {
+			margin-top: 35px;
+			margin-left: 55px;
+		}
+
+		#drop-area {
+			margin-top: 15px;
+			margin-left: 50px;
+			font-family: monospace;
+			width: 500px;
+			height: 250px;
+			background-color: rgba(0, 0, 0, 0.07);
+			border-radius: 6px 6px 6px 6px;
+			border-style: none solid solid none;
+			border-width: medium 1px 1px medium;
+			box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12) inset;
+			color: #555555;
+			font-size: 1em;
+			line-height: 1.4em;
+			padding: 5px 8px;
+			transition: background-color 0.2s ease 0s;
+		}
+
+		#drop-area:focus {
+			background: none repeat scroll 0 0 #FFFFFF;
+			outline-width: 0;
+		}
+		
+		#drop-area::-webkit-scrollbar {
+			display: none;
+		}
+		
+		@keyframes glow {
+			0% {
+				box-shadow: 0 0 0px 0px #0075e0ff;
+			}
+			100% {
+				box-shadow: 0 0 30px 15px #0075e000;
+			}
+		}
+		</style>
+	</head>
+	<body>
+		<h2>RDPCopy Decode</h2>
+		<textarea placeholder="Paste yo file..." id="drop-area" autocomplete="off" role="textbox"></textarea>
+		<script>
+			document.getElementById('drop-area').onpaste = function() {
+				setTimeout(() => {
+					var dropArea = document.getElementById('drop-area');
+					var data = dropArea.value.replace('-----BEGIN CERTIFICATE-----\n', '').replace('-----END CERTIFICATE-----\n', '');
+					var filename = data.substring(data.lastIndexOf('\n') + 1).split('\\').slice(-1);
+					//console.log(filename);
+					data = data.substring(0, data.lastIndexOf('\n')).replace('\n', '');
+					//console.log(data);
+					if (data != '') {
+						var url = "data:application/octet-stream;base64," + data;
+						//console.log(url);
+						var a = document.createElement('a');
+						a.href = url;
+						a.download = filename;
+						a.click();
+						window.URL.revokeObjectURL(url);
+						a.remove();
+						dropArea.style.animation = 'glow 0.75s ease forwards';
+						setTimeout(() => {
+							dropArea.value = '';
+							dropArea.style.animation = '';
+						}, 1000);
+					}
+				}, 100);
+			}
+		</script>
+	</body>
+</html>
